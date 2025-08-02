@@ -1,13 +1,13 @@
 package services
 
 import (
-	"go-linq-api/internal/models"
+	"go-linq-api/internal/helpers"
 	"go-linq-api/internal/repositories"
 )
 
 type WardService interface {
-	GetAll() ([]models.Ward, error)
-	GetWardDetails() ([]map[string]interface{}, error)
+	GetAll() helpers.OperationResult
+	GetWardDetails(pagination helpers.PaginationParam) helpers.OperationResult
 }
 
 type wardService struct {
@@ -18,10 +18,13 @@ func NewWardService(repo repositories.WardRepository) WardService {
 	return &wardService{repo: repo}
 }
 
-func (s *wardService) GetAll() ([]models.Ward, error) {
-	return s.repo.GetAll()
+// Lấy tất cả wards
+func (s *wardService) GetAll() helpers.OperationResult {
+	wards := s.repo.GetAll()
+	return helpers.NewOperationResultSuccess(wards)
 }
 
-func (s *wardService) GetWardDetails() ([]map[string]interface{}, error) {
-	return s.repo.GetWardDetails()
+// Lấy ward details có phân trang
+func (s *wardService) GetWardDetails(pagination helpers.PaginationParam) helpers.OperationResult {
+	return s.repo.GetWardDetails(pagination)
 }

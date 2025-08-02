@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"go-linq-api/internal/helpers"
 	"go-linq-api/internal/services"
 	"net/http"
 
@@ -23,20 +24,23 @@ func (c *WardController) RegisterRoutes(r *gin.Engine) {
 	}
 }
 
+// ---------------- GET ALL ----------------
 func (c *WardController) GetAll(ctx *gin.Context) {
-	wards, err := c.service.GetAll()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	ctx.JSON(http.StatusOK, wards)
+	result := c.service.GetAll()
+	ctx.JSON(http.StatusOK, result)
 }
 
+// ---------------- GET WARD DETAILS WITH PAGINATION ----------------
 func (c *WardController) GetWardDetails(ctx *gin.Context) {
-	details, err := c.service.GetWardDetails()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	var pagination helpers.PaginationParam
+
+	// Bind từ JSON body vào struct
+	if err := ctx.ShouldBindJSON(&pagination); err != nil {
+		ctx.JSON(http.StatusBadRequest, helpers.NewOperationResultError("Invalid body JSON"))
 		return
 	}
-	ctx.JSON(http.StatusOK, details)
+
+	pagination.Normalize()
+	result := c.service.GetWardDetails(pagination)
+	ctx.JSON(http.StatusOK, result)
 }
